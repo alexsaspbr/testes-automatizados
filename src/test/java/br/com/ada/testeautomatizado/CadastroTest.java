@@ -1,5 +1,7 @@
 package br.com.ada.testeautomatizado;
 
+import br.com.ada.testeautomatizado.model.Cliente;
+import br.com.ada.testeautomatizado.service.ClienteService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

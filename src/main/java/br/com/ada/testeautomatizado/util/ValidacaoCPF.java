@@ -1,4 +1,4 @@
-package br.com.ada.testeautomatizado;
+package br.com.ada.testeautomatizado.util;
 
 import org.springframework.stereotype.Component;
 

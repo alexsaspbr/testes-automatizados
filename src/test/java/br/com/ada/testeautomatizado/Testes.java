@@ -1,7 +1,7 @@
 package br.com.ada.testeautomatizado;
 
+import br.com.ada.testeautomatizado.model.Cliente;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.params.aggregator.ArgumentAccessException;
 
 public class Testes {
 

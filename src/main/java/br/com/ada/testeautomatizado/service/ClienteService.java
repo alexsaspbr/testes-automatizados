@@ -1,5 +1,7 @@
-package br.com.ada.testeautomatizado;
+package br.com.ada.testeautomatizado.service;
 
+import br.com.ada.testeautomatizado.model.Cliente;
+import br.com.ada.testeautomatizado.util.ValidacaoCPF;
 import org.springframework.stereotype.Service;
 
 @Service
