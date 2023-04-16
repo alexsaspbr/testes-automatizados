@@ -1,28 +1,33 @@
-package br.com.ada.testeautomatizado;
+package br.com.ada.testeautomatizado.service;
 
 import br.com.ada.testeautomatizado.model.Cliente;
-import br.com.ada.testeautomatizado.service.ClienteService;
+import br.com.ada.testeautomatizado.util.ValidacaoCPF;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
 
-class CadastroTest {
+class ClienteServiceTest {
+
+    private ClienteService clienteService;
+
+    @Mock
+    private ValidacaoCPF validacaoCPF;
 
     @Test
     void cadastrarSucesso() {
         Cliente cliente = new Cliente();
         cliente.setCpf("12345612345");
-
-        ClienteService cadastro = new ClienteService();
-        Assertions.assertEquals(cadastro.cadastrar(cliente), "SUCESSO");
+        Assertions.assertEquals(clienteService.cadastrar(cliente), "SUCESSO");
     }
 
     @Test
     void cadastrarErro() {
         Assertions.assertThrows(RuntimeException.class, () -> {
-            ClienteService cadastro = new ClienteService();
             Cliente cliente = new Cliente();
             cliente.setCpf("123546");
-            cadastro.cadastrar(cliente);
+            clienteService.cadastrar(cliente);
         });
     }
 }
