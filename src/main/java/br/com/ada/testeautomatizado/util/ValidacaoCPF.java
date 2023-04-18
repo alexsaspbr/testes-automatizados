@@ -8,7 +8,18 @@ import java.util.Objects;
 public class ValidacaoCPF {
 
     public boolean isValid(String cpf) {
-        return Objects.nonNull(cpf) && cpf.length() >= 11;
+        return nonNull(cpf) && regex(cpf);
     }
+
+    private boolean nonNull(String cpf) {
+        System.out.println("Passei nonNull");
+        return Objects.nonNull(cpf);
+    }
+
+    private boolean regex(String cpf) {
+        System.out.println("Passei regex");
+        return cpf.matches("(\\d{3})(\\.)(\\d{3})(\\.)(\\d{3})(\\-)(\\d{2})");
+    }
+
 
 }

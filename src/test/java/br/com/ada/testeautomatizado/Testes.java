@@ -2,6 +2,8 @@ package br.com.ada.testeautomatizado;
 
 import br.com.ada.testeautomatizado.model.Cliente;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.internal.matchers.Null;
 
 public class Testes {
@@ -53,6 +55,21 @@ public class Testes {
             System.out.println(cliente.getCpf().toUpperCase());
         });
         Assertions.assertEquals(exception.getMessage(), "Cannot invoke \"String.toUpperCase()\" because the return value of \"br.com.ada.testeautomatizado.model.Cliente.getCpf()\" is null");
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {3, 5, 7, 9, 11})
+    public void deveriaSerImpar(int num) {
+        Numero numero = new Numero();
+        Assertions.assertTrue(numero.isImpar(num));
+    }
+
+}
+
+class Numero {
+
+    public boolean isImpar(Integer numero) {
+        return numero % 2 != 0;
     }
 
 }
