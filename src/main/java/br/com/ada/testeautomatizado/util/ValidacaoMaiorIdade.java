@@ -8,7 +8,7 @@ import java.time.LocalDate;
 public class ValidacaoMaiorIdade {
 
     public Boolean isMaiorIdade(LocalDate dataNascimento){
-        return LocalDate.now().minusYears(dataNascimento.getYear()).lengthOfYear() >= 18L;
+        return LocalDate.now().minusYears(dataNascimento.getYear()).getYear() >= 18L;
     }
 
 
