@@ -1,5 +1,6 @@
 package br.com.ada.testeautomatizado.util;
 
+import br.com.ada.testeautomatizado.exception.CPFValidationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,23 +19,27 @@ class ValidacaoCPFTest {
     @ParameterizedTest
     @ValueSource(strings = {"123.456.789-78", "123.456.789-89", "123.456.789-51"})
     public void deveriaRetornarCPFValidadoComSucesso(String cpf) {
-        Mockito.when(validacaoCPF.isValid(Mockito.anyString())).thenCallRealMethod();
-        Assertions.assertTrue(validacaoCPF.isValid(cpf));
-
+        Mockito.doCallRealMethod().when(validacaoCPF).isValid(Mockito.anyString());
+        validacaoCPF.isValid(cpf);
+        Mockito.verify(validacaoCPF).isValid(cpf);
     }
 
     @Test
     public void deveriaRetornarValidacaoCPFNull(){
-        Mockito.when(validacaoCPF.isValid(Mockito.nullable(String.class))).thenCallRealMethod();
+        Mockito.doCallRealMethod().when(validacaoCPF).isValid(Mockito.nullable(String.class));
         String cpf = null;
-        Assertions.assertFalse(validacaoCPF.isValid(cpf));
+        Assertions.assertThrows(CPFValidationException.class,  () -> {
+            validacaoCPF.isValid(cpf);
+        });
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"12345678978", "12345678989", "12345678951"})
     public void deveriaRetornarMascaraCPFInvalido(String cpf) {
-        Mockito.when(validacaoCPF.isValid(Mockito.anyString())).thenCallRealMethod();
-        Assertions.assertFalse(validacaoCPF.isValid(cpf));
+        Mockito.doCallRealMethod().when(validacaoCPF).isValid(Mockito.anyString());
+        Assertions.assertThrows(CPFValidationException.class,  () -> {
+            validacaoCPF.isValid(cpf);
+        });
     }
 
 }

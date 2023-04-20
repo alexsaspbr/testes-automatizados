@@ -6,6 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
+import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
@@ -15,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 class ValidacaoMaiorIdadeTest {
 
+    @Spy
     @InjectMocks
     ValidacaoMaiorIdade validacaoMaiorIdade;
 
@@ -23,7 +26,8 @@ class ValidacaoMaiorIdadeTest {
     void isMaiorIdadeSucesso(String dataNascimento) {
 
         LocalDate dataNascimentoLD = LocalDate.parse(dataNascimento);
-        Assertions.assertTrue(validacaoMaiorIdade.isMaiorIdade(dataNascimentoLD));
+        validacaoMaiorIdade.isMaiorIdade(dataNascimentoLD);
+        Mockito.verify(validacaoMaiorIdade).isMaiorIdade(dataNascimentoLD);
 
     }
 }

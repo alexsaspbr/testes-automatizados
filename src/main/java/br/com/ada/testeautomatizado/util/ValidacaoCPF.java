@@ -1,5 +1,6 @@
 package br.com.ada.testeautomatizado.util;
 
+import br.com.ada.testeautomatizado.exception.CPFValidationException;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -7,19 +8,19 @@ import java.util.Objects;
 @Component
 public class ValidacaoCPF {
 
-    public boolean isValid(String cpf) {
-        return nonNull(cpf) && regex(cpf);
+    public void isValid(String cpf) {
+        if (isNull(cpf) || noMatches(cpf))
+            throw new CPFValidationException();
     }
 
-    private boolean nonNull(String cpf) {
+    private boolean isNull(String cpf) {
         System.out.println("Passei nonNull");
-        return Objects.nonNull(cpf);
+        return Objects.isNull(cpf);
     }
 
-    private boolean regex(String cpf) {
+    private boolean noMatches(String cpf) {
         System.out.println("Passei regex");
-        return cpf.matches("(\\d{3})(\\.)(\\d{3})(\\.)(\\d{3})(\\-)(\\d{2})");
+        return !cpf.matches("(\\d{3})(\\.)(\\d{3})(\\.)(\\d{3})(\\-)(\\d{2})");
     }
-
 
 }

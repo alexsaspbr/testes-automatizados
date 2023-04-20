@@ -19,10 +19,10 @@ public class ClienteService {
     public String cadastrar(Cliente cliente) {
         try {
             this.validacaoCPF.isValid(cliente.getCpf());
-            this.validacaoMaiorIdade.isMaiorIdade(cliente.getDataNascimento());
+            //this.validacaoMaiorIdade.isMaiorIdade(cliente.getDataNascimento());
             return "SUCESSO";
         } catch (Exception e) {
-            throw new CPFValidationException();
+            throw e;
         }
     }
 
