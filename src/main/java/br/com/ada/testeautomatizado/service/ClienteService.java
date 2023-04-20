@@ -1,6 +1,5 @@
 package br.com.ada.testeautomatizado.service;
 
-import br.com.ada.testeautomatizado.exception.CPFValidationException;
 import br.com.ada.testeautomatizado.model.Cliente;
 import br.com.ada.testeautomatizado.util.ValidacaoCPF;
 import br.com.ada.testeautomatizado.util.ValidacaoMaiorIdade;
@@ -19,7 +18,7 @@ public class ClienteService {
     public String cadastrar(Cliente cliente) {
         try {
             this.validacaoCPF.isValid(cliente.getCpf());
-            //this.validacaoMaiorIdade.isMaiorIdade(cliente.getDataNascimento());
+            this.validacaoMaiorIdade.isMaiorIdade(cliente.getDataNascimento());
             return "SUCESSO";
         } catch (Exception e) {
             throw e;

@@ -2,6 +2,7 @@ package br.com.ada.testeautomatizado.util;
 
 import br.com.ada.testeautomatizado.exception.CPFValidationException;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
