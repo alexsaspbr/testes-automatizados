@@ -1,5 +1,6 @@
 package br.com.ada.testeautomatizado.service;
 
+import br.com.ada.testeautomatizado.dto.ClienteDTO;
 import br.com.ada.testeautomatizado.exception.CPFValidationException;
 import br.com.ada.testeautomatizado.exception.MaiorIdadeInvalidaException;
 import br.com.ada.testeautomatizado.model.Cliente;
@@ -30,13 +31,13 @@ class ClienteServiceTest {
 
     @Test
     void cadastrarSucesso() {
-        Cliente cliente = new Cliente();
-        cliente.setCpf("123.123.123-12");
+        ClienteDTO clienteDTO = new ClienteDTO();
+        clienteDTO.setCpf("123.123.123-12");
         //cliente.setDataNascimento(LocalDate.parse("2001-01-01"));
         doCallRealMethod().when(validacaoCPF).isValid(anyString());
         doCallRealMethod().when(validacaoMaiorIdade).isMaiorIdade(any(LocalDate.class));
-        assertEquals(clienteService.cadastrar(cliente), "SUCESSO");
-        verify(validacaoCPF, times(1)).isValid(cliente.getCpf());
+        assertEquals(clienteService.cadastrar(clienteDTO), "SUCESSO");
+        verify(validacaoCPF, times(1)).isValid(clienteDTO.getCpf());
     }
 
     @Test
@@ -46,10 +47,10 @@ class ClienteServiceTest {
         //Mockito.doNothing().when(validacaoMaiorIdade).isMaiorIdade(Mockito.nullable(LocalDate.class));
 
         assertThrows(CPFValidationException.class, () -> {
-            Cliente cliente = new Cliente();
-            cliente.setCpf("12312312310");
-            cliente.setDataNascimento(null);
-            clienteService.cadastrar(cliente);
+            ClienteDTO clienteDTO = new ClienteDTO();
+            clienteDTO.setCpf("12312312310");
+            clienteDTO.setDataNascimento(null);
+            clienteService.cadastrar(clienteDTO);
         });
     }
 
@@ -60,10 +61,10 @@ class ClienteServiceTest {
         doCallRealMethod().when(validacaoMaiorIdade).isMaiorIdade(nullable(LocalDate.class));
 
         assertThrows(MaiorIdadeInvalidaException.class, () -> {
-            Cliente cliente = new Cliente();
-            cliente.setCpf("123.123.123-10");
+            ClienteDTO clienteDTO = new ClienteDTO();
+            clienteDTO.setCpf("123.123.123-10");
             //cliente.setDataNascimento(LocalDate.parse("2020-01-01"));
-            clienteService.cadastrar(cliente);
+            clienteService.cadastrar(clienteDTO);
         });
     }
 }

@@ -1,5 +1,6 @@
 package br.com.ada.testeautomatizado.service;
 
+import br.com.ada.testeautomatizado.dto.ClienteDTO;
 import br.com.ada.testeautomatizado.model.Cliente;
 import br.com.ada.testeautomatizado.repository.ClienteRepository;
 import br.com.ada.testeautomatizado.util.ValidacaoCPF;
@@ -21,10 +22,15 @@ public class ClienteService {
     @Autowired
     private ValidacaoMaiorIdade validacaoMaiorIdade;
 
-    public String cadastrar(Cliente cliente) {
+    public String cadastrar(ClienteDTO clienteDTO) {
         try {
-            this.validacaoCPF.isValid(cliente.getCpf());
-            this.validacaoMaiorIdade.isMaiorIdade(cliente.getDataNascimento());
+            this.validacaoCPF.isValid(clienteDTO.getCpf());
+            this.validacaoMaiorIdade.isMaiorIdade(clienteDTO.getDataNascimento());
+            Cliente cliente = new Cliente();
+            cliente.setCpf(clienteDTO.getCpf());
+            cliente.setNome(clienteDTO.getNome());
+            cliente.setDataNascimento(clienteDTO.getDataNascimento());
+            this.clienteRepository.save(cliente);
             return "SUCESSO";
         } catch (Exception e) {
             throw e;

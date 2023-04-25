@@ -60,12 +60,12 @@ class ClienteControllerTest {
     @Test
     void cadastrarSucesso() throws Exception {
 
-        Cliente cliente = new Cliente();
-        cliente.setCpf("123.456.789-12");
-        cliente.setNome("alex");
-        cliente.setDataNascimento(LocalDate.parse("2022-01-01"));
+        ClienteDTO clienteDTO = new ClienteDTO();
+        clienteDTO.setCpf("123.456.789-12");
+        clienteDTO.setNome("alex");
+        clienteDTO.setDataNascimento(LocalDate.parse("2022-01-01"));
 
-        String clienteString = mapper.writeValueAsString(cliente);
+        String clienteString = mapper.writeValueAsString(clienteDTO);
 
         Mockito.doCallRealMethod().when(validacaoCPF).isValid(Mockito.anyString());
         Mockito.doCallRealMethod().when(validacaoMaiorIdade).isMaiorIdade(Mockito.any(LocalDate.class));
@@ -118,6 +118,12 @@ class ClienteControllerTest {
                 .andExpect(status().isOk())
                 //.andExpect(content().string("SUCESSO"))
                 .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("Retorna todos os clientes")
+    public void deveriaListarClientes(){
 
     }
 

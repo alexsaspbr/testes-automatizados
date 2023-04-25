@@ -1,6 +1,7 @@
 package br.com.ada.testeautomatizado.controller;
 
 
+import br.com.ada.testeautomatizado.dto.ClienteDTO;
 import br.com.ada.testeautomatizado.model.Cliente;
 import br.com.ada.testeautomatizado.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,9 @@ public class ClienteController {
     private ClienteService clienteService;
 
     @PostMapping("/cadastrar")
-    public ResponseEntity<String> cadastrar(@RequestBody Cliente cliente) {
+    public ResponseEntity<String> cadastrar(@RequestBody ClienteDTO clienteDTO) {
         try {
-            return ResponseEntity.ok(this.clienteService.cadastrar(cliente));
+            return ResponseEntity.ok(this.clienteService.cadastrar(clienteDTO));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("deu ruim");
         }
