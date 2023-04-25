@@ -123,7 +123,7 @@ class ClienteControllerTest {
 
     @Test
     @DisplayName("Retorna todos os clientes")
-    public void deveriaListarClientes(){
+    public void deveriaListarClientesSucesso(){
 
     }
 
