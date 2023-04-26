@@ -33,4 +33,9 @@ public class ClienteController {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    @PutMapping("/atualizar")
+    public ResponseEntity<ClienteDTO> atualizar(@RequestBody ClienteDTO clienteDTO) {
+        return this.clienteService.atualizar(clienteDTO);
+    }
+
 }
