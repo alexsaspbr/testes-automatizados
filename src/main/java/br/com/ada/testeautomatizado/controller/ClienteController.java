@@ -4,6 +4,7 @@ package br.com.ada.testeautomatizado.controller;
 import br.com.ada.testeautomatizado.dto.ClienteDTO;
 import br.com.ada.testeautomatizado.model.Cliente;
 import br.com.ada.testeautomatizado.service.ClienteService;
+import br.com.ada.testeautomatizado.util.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,7 @@ public class ClienteController {
     }
 
     @PutMapping("/atualizar")
-    public ResponseEntity<ClienteDTO> atualizar(@RequestBody ClienteDTO clienteDTO) {
+    public ResponseEntity<Response<ClienteDTO>> atualizar(@RequestBody ClienteDTO clienteDTO) {
         return this.clienteService.atualizar(clienteDTO);
     }
 

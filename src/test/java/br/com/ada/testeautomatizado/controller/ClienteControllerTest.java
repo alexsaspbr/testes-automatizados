@@ -6,33 +6,28 @@ import br.com.ada.testeautomatizado.model.Cliente;
 import br.com.ada.testeautomatizado.repository.ClienteRepository;
 import br.com.ada.testeautomatizado.service.ClienteService;
 import br.com.ada.testeautomatizado.util.ClienteDTOConverter;
+import br.com.ada.testeautomatizado.util.Response;
 import br.com.ada.testeautomatizado.util.ValidacaoCPF;
 import br.com.ada.testeautomatizado.util.ValidacaoMaiorIdade;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -83,20 +78,10 @@ class ClienteControllerTest {
     }
 
 
-    /*@Test
+    @Test
     void cadastrarErro() {
 
-        Cliente cliente = new Cliente();
-        cliente.setCpf("123456789");
-        cliente.setNome("alex");
-
-        Mockito.when(clienteService.cadastrar(Mockito.any(Cliente.class))).thenThrow(new RuntimeException());
-
-        Assertions.assertEquals(
-                //ResponseEntity.status(HttpStatus.BAD_REQUEST).body("deu ruim"),
-                //this.clienteController.cadastrar(cliente));
-
-    }*/
+    }
 
 
     @Test
@@ -126,6 +111,8 @@ class ClienteControllerTest {
 
         String clienteString = mapper.writeValueAsString(clienteDTO());
 
+        Mockito.doCallRealMethod().when(validacaoCPF).isValid(Mockito.anyString());
+        Mockito.doCallRealMethod().when(validacaoMaiorIdade).isMaiorIdade(Mockito.any(LocalDate.class));
         Mockito.when(clienteRepository.findByCpf(Mockito.anyString())).thenReturn(Optional.of(clienteBD()));
         Cliente clienteAtualizadoBD = clienteBD();
         clienteAtualizadoBD.setNome("Alex Araujo");
@@ -140,17 +127,36 @@ class ClienteControllerTest {
                 .andReturn();
 
         String result = mvcResult.getResponse().getContentAsString();
-        String resultExpect = mapper.writeValueAsString(clienteDTOAtualizado());
+
+        Response<ClienteDTO> response = new Response<ClienteDTO>("Sucesso", clienteDTOAtualizado());
+        String resultExpect = mapper.writeValueAsString(response);
 
         Assertions.assertEquals(resultExpect, result);
 
     }
 
+    @Test
+    @DisplayName("Retorna No Content ao atualizar um cliente que não existe na base de dados")
+    public void deveriaRetornarNoContentAoAtualizarCliente() throws Exception {
+
+        ClienteDTO clienteDTO = clienteDTO();
+        clienteDTO.setCpf("456.123.789-98");
+        String body = mapper.writeValueAsString(clienteDTO);
+
+        mockMvc.perform(put("/atualizar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isNoContent())
+                .andDo(print());
+
+    }
+
+
     private static ClienteDTO clienteDTO(){
         ClienteDTO clienteDTO = new ClienteDTO();
         clienteDTO.setCpf("123.456.789-12");
         clienteDTO.setNome("Alex Gomes");
-        clienteDTO.setDataNascimento(LocalDate.parse("2022-01-01"));
+        clienteDTO.setDataNascimento(LocalDate.parse("2001-01-01"));
         return clienteDTO;
     }
 
