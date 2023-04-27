@@ -74,11 +74,11 @@ class ClienteControllerTest {
                         .content(clienteString)
                 )
                 .andExpect(status().isOk())
-                //.andExpect(content().string("SUCESSO"))
                 .andDo(print())
                 .andReturn();
 
-        //mvcResult.getResponse().getContentAsString("SUCESSO")
+        String resultActual = mvcResult.getResponse().getContentAsString();
+        Assertions.assertEquals(clienteString, resultActual);
 
     }
 
