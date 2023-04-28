@@ -17,12 +17,8 @@ public class ClienteController {
     private ClienteService clienteService;
 
     @PostMapping("/cadastrar")
-    public ResponseEntity<String> cadastrar(@RequestBody ClienteDTO clienteDTO) {
-        try {
-            return ResponseEntity.ok(this.clienteService.cadastrar(clienteDTO));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("deu ruim");
-        }
+    public ResponseEntity<Response<ClienteDTO>> cadastrar(@RequestBody ClienteDTO clienteDTO) {
+        return this.clienteService.cadastrar(clienteDTO);
     }
 
     @DeleteMapping("/deletarClientePor/{cpf}")

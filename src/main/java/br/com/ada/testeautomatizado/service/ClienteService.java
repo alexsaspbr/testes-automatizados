@@ -36,7 +36,7 @@ public class ClienteService {
     @Autowired
     private ClienteDTOConverter clienteDTOConverter;
 
-    public String cadastrar(ClienteDTO clienteDTO) {
+    public ResponseEntity<Response<ClienteDTO>> cadastrar(ClienteDTO clienteDTO) {
         try {
             this.validacaoCPF.isValid(clienteDTO.getCpf());
             this.validacaoMaiorIdade.isMaiorIdade(clienteDTO.getDataNascimento());
@@ -45,7 +45,10 @@ public class ClienteService {
             cliente.setNome(clienteDTO.getNome());
             cliente.setDataNascimento(clienteDTO.getDataNascimento());
             this.clienteRepository.save(cliente);
-            return "SUCESSO";
+            return ResponseEntity.ok(new Response<ClienteDTO>("Sucesso", clienteDTO));
+        } catch (CPFValidationException | MaiorIdadeInvalidaException e) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                    .body(new Response<ClienteDTO>(e.getMessage(), null));
         } catch (Exception e) {
             throw e;
         }

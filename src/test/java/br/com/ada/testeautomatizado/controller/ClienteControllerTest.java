@@ -73,16 +73,77 @@ class ClienteControllerTest {
                 .andReturn();
 
         String resultActual = mvcResult.getResponse().getContentAsString();
-        Assertions.assertEquals(clienteString, resultActual);
+        Response<ClienteDTO> response = new Response<>("Sucesso", clienteDTO());
+        String responseString = mapper.writeValueAsString(response);
+
+        Assertions.assertEquals(responseString, resultActual);
 
     }
 
 
     @Test
-    void cadastrarErro() {
+    void deveriaRetornarErroCPFInvalido() throws Exception {
+
+        ClienteDTO clienteDTO = clienteDTO();
+        clienteDTO.setCpf("12345678912");
+        String clienteString = mapper.writeValueAsString(clienteDTO);
+
+        Mockito.doCallRealMethod().when(validacaoCPF).isValid(Mockito.anyString());
+
+        MvcResult mvcResult = mockMvc.perform(post("/cadastrar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(clienteString)
+                )
+                .andExpect(status().isUnprocessableEntity())
+                .andDo(print())
+                .andReturn();
+
+        String responseExpected = mapper.writeValueAsString(new Response<ClienteDTO>("CPF inválido!", null));
+
+        Assertions.assertEquals(responseExpected, mvcResult.getResponse().getContentAsString());
 
     }
 
+    @Test
+    void deveriaRetornarErroMenorDeIdade() throws Exception {
+
+        ClienteDTO clienteDTO = clienteDTO();
+        clienteDTO.setDataNascimento(LocalDate.parse("2022-10-19"));
+        String clienteString = mapper.writeValueAsString(clienteDTO);
+
+        Mockito.doCallRealMethod().when(validacaoCPF).isValid(Mockito.anyString());
+        Mockito.doCallRealMethod().when(validacaoMaiorIdade).isMaiorIdade(Mockito.any(LocalDate.class));
+
+        MvcResult mvcResult = mockMvc.perform(post("/cadastrar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(clienteString)
+                )
+                .andExpect(status().isUnprocessableEntity())
+                .andDo(print())
+                .andReturn();
+
+        String responseExpected = mapper.writeValueAsString(new Response<ClienteDTO>("Não tem maior idade", null));
+
+        Assertions.assertEquals(responseExpected, mvcResult.getResponse().getContentAsString());
+
+    }
+
+    @Test
+    void deveriaRetornarErroInternoDoSistema() throws Exception {
+
+        String clienteString = mapper.writeValueAsString(clienteDTO());
+
+        Mockito.doCallRealMethod().when(validacaoCPF).isValid(Mockito.anyString());
+        Mockito.doCallRealMethod().when(validacaoMaiorIdade).isMaiorIdade(Mockito.any(LocalDate.class));
+
+        mockMvc.perform(post("/cadastrar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(clienteString)
+                )
+                .andExpect(status().isInternalServerError())
+                .andDo(print());
+
+    }
 
     @Test
     @DisplayName("Deletar cliente pelo cpf")
