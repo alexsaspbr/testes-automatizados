@@ -1,5 +1,7 @@
 package br.com.ada.testeautomatizado;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
@@ -18,7 +20,7 @@ public class TesteInterface {
     private WebDriver driver;
 
     @Test
-    public void testandoGoogle(){
+    public void testandoGoogle() throws InterruptedException {
 
         System.setProperty("webdriver.chrome.driver", "/home/alexaraujo/selenium/chromedriver");
 
@@ -27,13 +29,13 @@ public class TesteInterface {
 
         driver = new ChromeDriver(options);
 
-        driver.get("https://google.com");
+        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000));
+
+        driver.get("https://google.com/");
 
         String titulo = driver.getTitle();
 
         Assertions.assertEquals("Google", titulo);
-
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
 
         WebElement searchField = driver.findElement(By.name("q"));
         WebElement btnSearch = driver.findElement(By.name("btnI"));
@@ -41,14 +43,15 @@ public class TesteInterface {
         searchField.sendKeys("Ada Let's Code");
         btnSearch.click();
 
-        driver.manage().timeouts().scriptTimeout(Duration.ofMillis(15000));
-
-        WebElement element = driver.findElement(By.className("sc-d86dda7f-1 cmmKrF"));
+        WebElement element = driver.findElement(By.xpath("//*[contains(@class, 'sc-d86dda7f-1 cmmKr')]"));
 
         Assertions.assertEquals("Ada, a Nova Educação", element.getText());
 
-        //driver.close();
+    }
 
+    @AfterEach
+    public void after(){
+        driver.quit();
     }
 
 }
