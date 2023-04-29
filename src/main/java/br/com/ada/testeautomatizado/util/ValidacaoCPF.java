@@ -15,12 +15,12 @@ public class ValidacaoCPF {
     }
 
     private boolean isNull(String cpf) {
-        System.out.println("Passei nonNull");
+        //System.out.println("Passei nonNull");
         return Objects.isNull(cpf);
     }
 
     private boolean noMatches(String cpf) {
-        System.out.println("Passei regex");
+        //System.out.println("Passei regex");
         return !cpf.matches("(\\d{3})(\\.)(\\d{3})(\\.)(\\d{3})(\\-)(\\d{2})");
     }
 

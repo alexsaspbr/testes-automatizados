@@ -36,7 +36,7 @@ class ClienteServiceTest {
         //cliente.setDataNascimento(LocalDate.parse("2001-01-01"));
         doCallRealMethod().when(validacaoCPF).isValid(anyString());
         doCallRealMethod().when(validacaoMaiorIdade).isMaiorIdade(any(LocalDate.class));
-        assertEquals(clienteService.cadastrar(clienteDTO), "SUCESSO");
+        assertEquals(clienteService.cadastrar("", clienteDTO), null);
         verify(validacaoCPF, times(1)).isValid(clienteDTO.getCpf());
     }
 
@@ -50,7 +50,7 @@ class ClienteServiceTest {
             ClienteDTO clienteDTO = new ClienteDTO();
             clienteDTO.setCpf("12312312310");
             clienteDTO.setDataNascimento(null);
-            clienteService.cadastrar(clienteDTO);
+            clienteService.cadastrar("", clienteDTO);
         });
     }
 
@@ -64,7 +64,7 @@ class ClienteServiceTest {
             ClienteDTO clienteDTO = new ClienteDTO();
             clienteDTO.setCpf("123.123.123-10");
             //cliente.setDataNascimento(LocalDate.parse("2020-01-01"));
-            clienteService.cadastrar(clienteDTO);
+            clienteService.cadastrar("", clienteDTO);
         });
     }
 }

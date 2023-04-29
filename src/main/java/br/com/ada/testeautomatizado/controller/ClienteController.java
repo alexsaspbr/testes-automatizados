@@ -5,11 +5,13 @@ import br.com.ada.testeautomatizado.dto.ClienteDTO;
 import br.com.ada.testeautomatizado.model.Cliente;
 import br.com.ada.testeautomatizado.service.ClienteService;
 import br.com.ada.testeautomatizado.util.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 public class ClienteController {
 
@@ -17,8 +19,9 @@ public class ClienteController {
     private ClienteService clienteService;
 
     @PostMapping("/cadastrar")
-    public ResponseEntity<Response<ClienteDTO>> cadastrar(@RequestBody ClienteDTO clienteDTO) {
-        return this.clienteService.cadastrar(clienteDTO);
+    public ResponseEntity<Response<ClienteDTO>> cadastrar(@RequestHeader("correlation-id") String correlationId,@RequestBody ClienteDTO clienteDTO) {
+        log.debug("Executando cadastrar no ClienteController");
+        return this.clienteService.cadastrar(correlationId, clienteDTO);
     }
 
     @DeleteMapping("/deletarClientePor/{cpf}")

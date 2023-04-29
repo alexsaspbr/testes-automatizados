@@ -12,6 +12,7 @@ import br.com.ada.testeautomatizado.util.ValidacaoCPF;
 import br.com.ada.testeautomatizado.util.ValidacaoMaiorIdade;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class ClienteService {
 
@@ -36,8 +38,10 @@ public class ClienteService {
     @Autowired
     private ClienteDTOConverter clienteDTOConverter;
 
-    public ResponseEntity<Response<ClienteDTO>> cadastrar(ClienteDTO clienteDTO) {
+    public ResponseEntity<Response<ClienteDTO>> cadastrar(String correlationId, ClienteDTO clienteDTO) {
+        log.debug("Executando cadastrar no ClienteService {}", correlationId);
         try {
+            log.trace("Dados clienteDTO {}", clienteDTO.toString());
             this.validacaoCPF.isValid(clienteDTO.getCpf());
             this.validacaoMaiorIdade.isMaiorIdade(clienteDTO.getDataNascimento());
             Cliente cliente = new Cliente();
@@ -45,11 +49,14 @@ public class ClienteService {
             cliente.setNome(clienteDTO.getNome());
             cliente.setDataNascimento(clienteDTO.getDataNascimento());
             this.clienteRepository.save(cliente);
+            log.debug("Cadastrou cliente com sucesso");
             return ResponseEntity.ok(new Response<ClienteDTO>("Sucesso", clienteDTO));
         } catch (CPFValidationException | MaiorIdadeInvalidaException e) {
+            log.debug("Validacoes cadastrar no ClienteService");
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                     .body(new Response<ClienteDTO>(e.getMessage(), null));
         } catch (Exception e) {
+            log.error("Erro no cadastrar do ClienteService {}", e.getMessage());
             throw e;
         }
     }
