@@ -3,7 +3,6 @@ package br.com.ada.testeautomatizado;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -12,9 +11,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
 public class TesteInterface {
 

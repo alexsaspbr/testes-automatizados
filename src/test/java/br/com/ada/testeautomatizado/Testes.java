@@ -4,7 +4,6 @@ import br.com.ada.testeautomatizado.model.Cliente;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.internal.matchers.Null;
 
 public class Testes {
 

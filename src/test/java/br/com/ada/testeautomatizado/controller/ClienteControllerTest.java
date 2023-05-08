@@ -2,11 +2,12 @@ package br.com.ada.testeautomatizado.controller;
 
 
 import br.com.ada.testeautomatizado.dto.ClienteDTO;
+import br.com.ada.testeautomatizado.dto.ResponseDTO;
+import br.com.ada.testeautomatizado.exception.CPFValidationException;
 import br.com.ada.testeautomatizado.model.Cliente;
 import br.com.ada.testeautomatizado.repository.ClienteRepository;
 import br.com.ada.testeautomatizado.service.ClienteService;
 import br.com.ada.testeautomatizado.util.ClienteDTOConverter;
-import br.com.ada.testeautomatizado.util.Response;
 import br.com.ada.testeautomatizado.util.ValidacaoCPF;
 import br.com.ada.testeautomatizado.util.ValidacaoMaiorIdade;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,8 +24,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -56,8 +60,31 @@ class ClienteControllerTest {
     @Autowired
     private ObjectMapper mapper;
 
+
     @Test
-    void cadastrarSucesso() throws Exception {
+    @DisplayName("Retorna a lista com todos os clientes")
+    public void deveriaRetornarTodosClientes() throws Exception {
+
+        Mockito.when(this.clienteRepository.findAll()).thenReturn(List.of(clienteBD()));
+
+        MvcResult mvcResult = mockMvc.perform(get("/listarTodos")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+
+        ClienteDTO clienteDTO = clienteDTO();
+        clienteDTO.setDataNascimento(clienteBD().getDataNascimento());
+        ResponseDTO<List<ClienteDTO>> listResponseDTO = new ResponseDTO<>("Sucesso", List.of(clienteDTO));
+        String responseExpected = mapper.writeValueAsString(listResponseDTO);
+
+        Assertions.assertEquals(responseExpected, mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8));
+
+    }
+
+    @Test
+    @DisplayName("Cadastrar um cliente com sucesso")
+    void deveriaCadastrarClienteSucesso() throws Exception {
 
         String clienteString = mapper.writeValueAsString(clienteDTO());
 
@@ -65,16 +92,17 @@ class ClienteControllerTest {
         Mockito.doCallRealMethod().when(validacaoMaiorIdade).isMaiorIdade(Mockito.any(LocalDate.class));
 
         MvcResult mvcResult = mockMvc.perform(post("/cadastrar")
+                        .header("correlation-id", UUID.randomUUID().toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(clienteString)
                 )
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andDo(print())
                 .andReturn();
 
         String resultActual = mvcResult.getResponse().getContentAsString();
-        Response<ClienteDTO> response = new Response<>("Sucesso", clienteDTO());
-        String responseString = mapper.writeValueAsString(response);
+        ResponseDTO<ClienteDTO> responseDTO = new ResponseDTO<>("Sucesso", clienteDTO());
+        String responseString = mapper.writeValueAsString(responseDTO);
 
         Assertions.assertEquals(responseString, resultActual);
 
@@ -82,6 +110,7 @@ class ClienteControllerTest {
 
 
     @Test
+    @DisplayName("Retorna erro de CPF invalido")
     void deveriaRetornarErroCPFInvalido() throws Exception {
 
         ClienteDTO clienteDTO = clienteDTO();
@@ -91,6 +120,7 @@ class ClienteControllerTest {
         Mockito.doCallRealMethod().when(validacaoCPF).isValid(Mockito.anyString());
 
         MvcResult mvcResult = mockMvc.perform(post("/cadastrar")
+                        .header("correlation-id", UUID.randomUUID().toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(clienteString)
                 )
@@ -98,13 +128,14 @@ class ClienteControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        String responseExpected = mapper.writeValueAsString(new Response<ClienteDTO>("CPF inválido!", null));
+        String responseExpected = mapper.writeValueAsString(new ResponseDTO<ClienteDTO>(new CPFValidationException().getMessage(), null));
 
-        Assertions.assertEquals(responseExpected, mvcResult.getResponse().getContentAsString());
+        Assertions.assertEquals(responseExpected, mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8));
 
     }
 
     @Test
+    @DisplayName("Retorna erro de maior idade")
     void deveriaRetornarErroMenorDeIdade() throws Exception {
 
         ClienteDTO clienteDTO = clienteDTO();
@@ -115,6 +146,7 @@ class ClienteControllerTest {
         Mockito.doCallRealMethod().when(validacaoMaiorIdade).isMaiorIdade(Mockito.any(LocalDate.class));
 
         MvcResult mvcResult = mockMvc.perform(post("/cadastrar")
+                        .header("correlation-id", UUID.randomUUID().toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(clienteString)
                 )
@@ -122,13 +154,14 @@ class ClienteControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        String responseExpected = mapper.writeValueAsString(new Response<ClienteDTO>("Não tem maior idade", null));
+        String responseExpected = mapper.writeValueAsString(new ResponseDTO<ClienteDTO>("Não tem maior idade", null));
 
-        Assertions.assertEquals(responseExpected, mvcResult.getResponse().getContentAsString());
+        Assertions.assertEquals(responseExpected, mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8));
 
     }
 
     @Test
+    @DisplayName("Retorna o erro interno de sistema")
     void deveriaRetornarErroInternoDoSistema() throws Exception {
 
         String clienteString = mapper.writeValueAsString(clienteDTO());
@@ -136,7 +169,10 @@ class ClienteControllerTest {
         Mockito.doCallRealMethod().when(validacaoCPF).isValid(Mockito.anyString());
         Mockito.doCallRealMethod().when(validacaoMaiorIdade).isMaiorIdade(Mockito.any(LocalDate.class));
 
+        Mockito.when(this.clienteRepository.save(Mockito.any(Cliente.class))).thenThrow(RuntimeException.class);
+
         mockMvc.perform(post("/cadastrar")
+                        .header("correlation-id", UUID.randomUUID().toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(clienteString)
                 )
@@ -189,8 +225,8 @@ class ClienteControllerTest {
 
         String result = mvcResult.getResponse().getContentAsString();
 
-        Response<ClienteDTO> response = new Response<ClienteDTO>("Sucesso", clienteDTOAtualizado());
-        String resultExpect = mapper.writeValueAsString(response);
+        ResponseDTO<ClienteDTO> responseDTO = new ResponseDTO<ClienteDTO>("Sucesso", clienteDTOAtualizado());
+        String resultExpect = mapper.writeValueAsString(responseDTO);
 
         Assertions.assertEquals(resultExpect, result);
 

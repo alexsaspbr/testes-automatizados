@@ -1,26 +1,24 @@
 package br.com.ada.testeautomatizado.service;
 
 import br.com.ada.testeautomatizado.dto.ClienteDTO;
+import br.com.ada.testeautomatizado.dto.ResponseDTO;
 import br.com.ada.testeautomatizado.exception.CPFValidationException;
 import br.com.ada.testeautomatizado.exception.ClienteNotFoundException;
 import br.com.ada.testeautomatizado.exception.MaiorIdadeInvalidaException;
 import br.com.ada.testeautomatizado.model.Cliente;
 import br.com.ada.testeautomatizado.repository.ClienteRepository;
 import br.com.ada.testeautomatizado.util.ClienteDTOConverter;
-import br.com.ada.testeautomatizado.util.Response;
 import br.com.ada.testeautomatizado.util.ValidacaoCPF;
 import br.com.ada.testeautomatizado.util.ValidacaoMaiorIdade;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -38,7 +36,7 @@ public class ClienteService {
     @Autowired
     private ClienteDTOConverter clienteDTOConverter;
 
-    public ResponseEntity<Response<ClienteDTO>> cadastrar(String correlationId, ClienteDTO clienteDTO) {
+    public ResponseEntity<ResponseDTO<ClienteDTO>> cadastrar(String correlationId, ClienteDTO clienteDTO) {
         log.debug("Executando cadastrar no ClienteService {}", correlationId);
         try {
             log.trace("Dados clienteDTO {}", clienteDTO.toString());
@@ -50,14 +48,14 @@ public class ClienteService {
             cliente.setDataNascimento(clienteDTO.getDataNascimento());
             this.clienteRepository.save(cliente);
             log.debug("Cadastrou cliente com sucesso");
-            return ResponseEntity.ok(new Response<ClienteDTO>("Sucesso", clienteDTO));
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseDTO<ClienteDTO>("Sucesso", clienteDTO));
         } catch (CPFValidationException | MaiorIdadeInvalidaException e) {
             log.debug("Validacoes cadastrar no ClienteService");
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body(new Response<ClienteDTO>(e.getMessage(), null));
+                    .body(new ResponseDTO<ClienteDTO>(e.getMessage(), null));
         } catch (Exception e) {
             log.error("Erro no cadastrar do ClienteService {}", e.getMessage());
-            throw e;
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -74,7 +72,7 @@ public class ClienteService {
         return this.clienteRepository.findByCpf(cpf);
     }
 
-    public ResponseEntity<Response<ClienteDTO>> atualizar(ClienteDTO clienteDTO) {
+    public ResponseEntity<ResponseDTO<ClienteDTO>> atualizar(ClienteDTO clienteDTO) {
 
         try {
 
@@ -94,9 +92,9 @@ public class ClienteService {
 
                 ClienteDTO clienteDTOAtualizado = this.clienteDTOConverter.convertFrom(clienteAtualizadoBD);
 
-                Response<ClienteDTO> response = new Response<>("Sucesso", clienteDTOAtualizado);
+                ResponseDTO<ClienteDTO> responseDTO = new ResponseDTO<>("Sucesso", clienteDTOAtualizado);
 
-                return ResponseEntity.ok(response);
+                return ResponseEntity.ok(responseDTO);
 
             } else {
                 throw new ClienteNotFoundException();
@@ -106,8 +104,32 @@ public class ClienteService {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (CPFValidationException | MaiorIdadeInvalidaException e) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                                 .body(new Response<>(e.getMessage(), null));
+                                 .body(new ResponseDTO<>(e.getMessage(), null));
         } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+
+    }
+
+    public ResponseEntity<ResponseDTO<List<ClienteDTO>>> todos() {
+
+        try {
+            List<ClienteDTO> clienteDTOList = this.clienteRepository.findAll().stream().map(cliente -> {
+                return ClienteDTO.builder()
+                        .cpf(cliente.getCpf())
+                        .nome(cliente.getNome())
+                        .dataNascimento(cliente.getDataNascimento())
+                        .build();
+            }).collect(Collectors.toList());
+
+            if (clienteDTOList.isEmpty())
+                throw new ClienteNotFoundException();
+
+            return ResponseEntity.ok(new ResponseDTO<List<ClienteDTO>>("Sucesso", clienteDTOList));
+        } catch (ClienteNotFoundException e) {
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error(e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
 
